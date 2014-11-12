@@ -18,7 +18,6 @@ class Piece
 
 		void setN()
 		{
-			std::cout<<name;
 			if (player == 0)
 				sprintf(n,"w%s",name);
 			else if (player == 1)
