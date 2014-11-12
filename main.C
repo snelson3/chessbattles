@@ -1,6 +1,5 @@
 #include <iostream>
-#include "Piece.C"
-#include "Board.C"
+#include "Gamemaster.C"
 
 using std::endl;
 
@@ -9,23 +8,16 @@ void linebreak(){
 };
 
 void newgame(){
-	Board board = Board();
-	//Gamemaster gm;
+	Gamemaster gm = Gamemaster();
+	gm.board.displayBoard();
 
-	board.displayBoard();
+	while (gm.checkmate == false)
+	{
+		gm.makeMove();
+		gm.changeTurn(); //have the player turns be in a length 2 array so you can just -1
+		gm.isCheckmate();
+	}
 
-
-
-	// while (gm.isCheckmate == false)
-	// {
-	// 	Move move = acceptmove(gm.activeplayer);
-	// 	if (gm.isValid(move))
-	// 		{
-	// 			gm.makemove(move);
-	// 			gm.setTurn(); //have the player turns be in a length 2 array so you can just -1
-	// 			gm.isCheckmate();
-	// 		}
-	// }
 	std::cout<<"Checkmate"<<endl;
 };
 
