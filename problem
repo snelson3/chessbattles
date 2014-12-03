@@ -1,0 +1,2 @@
+
+The problem gamemaster creates a Board so it can keep track of whats going on. I want to pass a reference/pointer of the board to Display_cmd. This doesn't seem to be getting passed right.

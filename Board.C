@@ -57,6 +57,11 @@ class Board
 					// std::cout<<"Player "<<board[i][j]->getPlayer()<<" Piece "<<board[i][j]->getName();
 					// std::cout<<" i "<<i<<" j "<<j<<endl;
 				}
+
+			// board[0][5] = new King(0);
+			// board[7][5] = new King(1);
+
+			// board[4][4] = new Knight(0);
 		}
 
 		// void displayBoard(){
@@ -115,6 +120,7 @@ class Board
 			}
 		};
 
+
 		bool isCheck(int t)
 		{
 			int g;
@@ -125,7 +131,7 @@ class Board
 					if (board[i][j]->isKing())
 						if(board[i][j]->getPlayerNum() == t)
 							{
-								std::cerr<<"Found the king at "<<i<<" "<<j<<"\n";
+								//std::cerr<<"Found the king at "<<i<<" "<<j<<"\n";
 								g = i;
 								h = j;
 							}
@@ -144,7 +150,7 @@ class Board
 							board[i][j]->loc2d(&t,&y,*mo);
 							if (t == g && h == y)
 							{
-								std::cerr<<"R TRUE";
+								//std::cerr<<"R TRUE";
 								return true;
 							}
 						}

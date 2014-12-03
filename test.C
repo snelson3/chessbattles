@@ -2,21 +2,42 @@
 
 
 
-		void loc2d(int *i, int *j, int m)
-		{
-			//convert m into an i and a j
-			//have to modulo m which is i, then do some multiplication and subtraction for j
-			*i = m / 8;
-			*j = m - (*i*8);
-		}
-		
+class A //A is a piece
+{
+public:
+	int a;
+
+	A(void){a = 1;}
+};
+
+class B //B is a board holding a pointer of A
+{
+public:
+	A *x;
+	B(void){x = new A();}
+};
+
+class D //D is a display holding a pointer to B trying to read a
+{
+public:
+	B *s;
+	D(B *b){s = b;}
+};
+
+class C //C is a gamemaster holding an instance of B
+{
+public:
+	B b;
+	D *d;
+	C(void){d = new D(&b);}
+};
 
 int main(void){
-	int i;
-	int j;
-	loc2d(&i,&j,42);
-	std::cerr<<"5 2 "<<i<<" "<<j<<std::endl;
-	loc2d(&i,&j,2);
-	std::cerr<<"0 2 "<<i<<" "<<j<<std::endl;
+	C c;
+	std::cerr<<c.b.x->a<<" should be 1\n";
+	std::cerr<<c.d->s->x->a<<" should also be 1\n";
+	c.b.x->a = 5;
+	std::cerr<<c.b.x->a<<" should now be 5\n";
+	std::cerr<<c.d->s->x->a<<" should now also be 5\n";
 
 }

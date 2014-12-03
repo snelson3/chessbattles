@@ -8,23 +8,24 @@
 class Gamemaster
 {
 	public:
-		Board *board;
+		Board board;
 		Display *display;
 		bool checkmate;
+		bool stalemate;
 		int p[2];
 		int t;
 
 		Gamemaster(int di)
 		{
 			checkmate = false;
+			stalemate = false;
 			p[0] = 0;
 			p[1] = 1;
 			t = 0;
-			board = new Board();
 			if (di == 1)
-				display = new Display_cmd(board);
+				display = new Display_cmd(&board);
 			else if (di == 2)
-				display = new Display_gui(board);
+				display = new Display_gui(&board);
 		}
 
 		const char* getPlayer(void) {if (p[t] == 0) return "White"; if (p[t] == 1) return "Black";
@@ -139,32 +140,32 @@ class Gamemaster
 
 				if (j > n) //queens side rook
 				{
-					board.board[i][j-2] = board.board[i][j];
-					board.board[i][j-1] = board.board[m][n];
-					board.board[i][j] = new Empty(2);
-					board.board[m][n] = new Empty(2);
+					board.board[i][2] = board.board[i][4]; //the c rank holds the king
+					board.board[i][3] = board.board[i][0]; //the d rank holds the rook
+					board.board[i][4] = new Empty(2); //the old king spot is empty
+					board.board[i][0] = new Empty(2); //the old rook 
 					if(board.isCheck(getTurn()))
 						{
-						board.board[i][j] = board.board[i][j-2];
-						board.board[m][n] = board.board[i][j-1];
-						board.board[i][j-2] = new Empty(2);
-						board.board[i][j-1] = new Empty(2);
+						board.board[i][4] = board.board[i][2];
+						board.board[i][0] = board.board[i][3];
+						board.board[i][2] = new Empty(2);
+						board.board[i][3] = new Empty(2);
 						std::cerr<<"Your king would be in check!\n";
 						return -1;
 						}	
 				}
 				else //kings side rook
 				{
-					board.board[i][j+2] = board.board[i][j];
-					board.board[i][j+1] = board.board[m][n];
-					board.board[i][j] = new Empty(2);
-					board.board[i][j] = new Empty(2);
+					board.board[i][6] = board.board[i][4];
+					board.board[i][5] = board.board[m][7];
+					board.board[i][4] = new Empty(2);
+					board.board[i][7] = new Empty(2);
 					if(board.isCheck(getTurn()))
 						{
-						board.board[i][j] = board.board[i][j+2];
-						board.board[m][n] = board.board[i][j+1];
-						board.board[i][j-2] = new Empty(2);
-						board.board[i][j-1] = new Empty(2);
+						board.board[i][4] = board.board[i][6];
+						board.board[m][7] = board.board[i][5];
+						board.board[i][5] = new Empty(2);
+						board.board[i][6] = new Empty(2);
 						std::cerr<<"Your king would be in check!"<<endl;
 						return -1;
 						}	
@@ -181,6 +182,8 @@ class Gamemaster
 
 					//do a check for if theres check now
 
+					Piece *temp;
+					temp = board.board[m][n];
 					board.board[i][j] = new Empty(2);
 					board.board[m][n] = new Pawn(t);
 
@@ -188,7 +191,7 @@ class Gamemaster
 					{
 						std::cerr<<"Your king would be in check!";
 						board.board[i][j] = new Pawn(t);
-						board.board[m][n] = new Empty(2);
+						board.board[m][n] = temp;
 						return -1;
 					}
 
@@ -226,6 +229,12 @@ class Gamemaster
 				else mval = 1; //just like a normal piece
 				std::cerr<<"THIS IS BORING MAMA";
 			}
+			else if (mval != 1)
+			{
+				std::cerr<<"SOMETHING WENT WRONG";
+				return -1;
+			}
+
 			if (mval == 1)
 			{
 
@@ -233,28 +242,28 @@ class Gamemaster
 				
 				//normal movement
 				std::cerr<<"I guess not";
+				Piece *temp;
+				temp = board.board[m][n];
 				board.board[m][n] = board.board[i][j];
 				board.board[i][j] = new Empty(2);
 				std::cerr<<"Gonna check for check";
 				if (board.isCheck(getTurn()))
 				{
 					board.board[i][j] = board.board[m][n];
-					board.board[m][n] = new Empty(2);
+					board.board[m][n] = temp;
 					std::cerr<<"Your king would be in check!";
 					return -1;
 				}
 			}
-			else
-			{
-				std::cerr<<"SOMETHING WENT WRONG";
-				return -1;
-			}
+
 
 			//implement checks/mate
 
 			std::cout<<endl<<"SUCCESS!";
 
 			board.checkThreats(m,n);
+
+			board.getPiece(m,n)->moved = true;
 
 			return 1;
 		}
@@ -267,15 +276,67 @@ class Gamemaster
 			if (t > 1 || t < 0) perror("Wrong turn");
 		}
 
+		bool isStalemate()
+		{
+			//very similar to is checkmate
+			//for each piece owned by t
+			//get a vector of all possible moves
+			//for each of those moves
+			  //perform the move on a copy of the board
+			  //see if the king is in check
+
+			for (int i = 0; i < 8; i++)
+				for (int j = 0; j < 8; j++)   
+					if (board.board[i][j]->getPlayerNum() == t)
+					{
+						vector<int> moves = board.board[i][j]->getThreats(i,j,board.board);
+  						std::cerr<<board.board[i][j]->n<<" at "<<i<<" "<<j<<"\n";
+  						for(std::vector<int>::iterator mo = moves.begin(); mo != moves.end(); ++mo) 
+  						{
+  							Piece *t1 = board.board[i][j];
+  							int g;
+  							int h;
+
+  							t1->loc2d(&g,&h,mo[0]);//might not be indexing right
+   							//std::cerr<<"   to "<<g<<" "<<h<<"\n";
+  							Piece *t2 = board.board[g][h];
+  							//make temp square that saves [i][j]
+  							//make temp square that saves mo loc
+  							board.board[g][h] = board.board[i][j];
+  							board.board[i][j] = new Empty(2);
+  							//std::cerr<<"THIS WORLD COULD BE\n";
+  							//display->update();
+  							if (!board.isCheck(t))
+  							{
+  								//I have to reset it, then return
+  								board.board[g][h] = t2;
+  								board.board[i][j] = t1;
+  								return false;
+  							}
+  							board.board[g][h] = t2;
+  							board.board[i][j] = t1;
+
+  						}
+  					}
+
+  						return true;
+
+		}
+
 		void isCheckmate()
 		{
 			//well I don't know how to test for checkmmate, I guess go through every 
 			//pieces possible moves and test it and see if they are in checkmmate
 			//(only do this if they are in check to start)
 			
-			std::cerr<<"IT BREAKS BEFORE CHECK RIGHT";
-			if (!board.isCheck(t)) return;
-			std::cerr<<"NO NOT REALLY";
+			//std::cerr<<"IT BREAKS BEFORE CHECK RIGHT";
+			if (!board.isCheck(t)) 
+			{
+				if (isStalemate()) stalemate = true;
+				return;
+			}
+			
+			//std::cerr<<"NO NOT REALLY";
 
 			std::cerr<<"You are in check!!!!!\n";
 			//for each piece owned by t
@@ -287,23 +348,28 @@ class Gamemaster
 
 			//this bugs with castling, because the logic isn't coded in
 			//Maybe I should make each piece have their own move function.
-
+//std::cerr<<"It gets this far right\n";
 			for (int i = 0; i < 8; i++)
 				for (int j = 0; j < 8; j++)   
 					if (board.board[i][j]->getPlayerNum() == t)
 					{
 						vector<int> moves = board.board[i][j]->getThreats(i,j,board.board);
+  						std::cerr<<board.board[i][j]->n<<" at "<<i<<" "<<j<<"\n";
   						for(std::vector<int>::iterator mo = moves.begin(); mo != moves.end(); ++mo) 
   						{
   							Piece *t1 = board.board[i][j];
   							int g;
   							int h;
+
   							t1->loc2d(&g,&h,mo[0]);//might not be indexing right
+   							//std::cerr<<"   to "<<g<<" "<<h<<"\n";
   							Piece *t2 = board.board[g][h];
   							//make temp square that saves [i][j]
   							//make temp square that saves mo loc
   							board.board[g][h] = board.board[i][j];
   							board.board[i][j] = new Empty(2);
+  							//std::cerr<<"THIS WORLD COULD BE\n";
+  							//display->update();
   							if (!board.isCheck(t))
   							{
   								//I have to reset it, then return
@@ -313,6 +379,8 @@ class Gamemaster
   							}
   							board.board[g][h] = t2;
   							board.board[i][j] = t1;
+  							//std::cerr<<"BACK TO WHAT WAS\n";
+  							//display->update();
 
 //I didn't finish coding the checkmate function.
 
@@ -326,6 +394,8 @@ class Gamemaster
 			//if it hasn't returned yet it must be checkmate
 
 			checkmate = true;
+
+			std::cerr<<"checkmate is "<<checkmate<<"\n";
 		
 		}
 };

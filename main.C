@@ -13,13 +13,18 @@ void newgame(int display){
 	//gm.board.displayBoard();
 	gm.display->update();
 
-	while (gm.checkmate == false)
+	while (gm.checkmate == false && gm.stalemate == false)
 	{
 		while (gm.makeMove() == -1) ;
 		gm.changeTurn(); //have the player turns be in a length 2 array so you can just -1
 		gm.isCheckmate();
 	}
-	std::cout<<"Checkmate"<<endl;
+	if (gm.checkmate == true)
+		std::cout<<"Checkmate\n"<<endl;
+	else if (gm.stalemate == true)
+		std::cout<<"Stalemate\n"<<endl;
+	else 
+		std::cout<<"The game broke\n";
 };
 
 int main() {

@@ -20,7 +20,13 @@ class Piece
 		Piece(int p)
 		{
 			player = p;
+			moved = false;
 			
+		}
+
+
+		void print(){
+			std::cerr<<"TEST\n";
 		}
 
 		void setN()
@@ -88,12 +94,10 @@ class Piece
 class Pawn : public Piece
 {
 	public:
-		bool moved;
 
 		Pawn(int p) : Piece(p)
 		{
 			name = "Pa";
-			moved = false;
 			setN();
 		}
 
@@ -101,12 +105,11 @@ class Pawn : public Piece
 		{//r value of 3 means pawn moved so check for leveling up
 						//This is where you need to figure out to change the sign
 			//or just change the matrix for each player
-			std::cerr<<"WAKKAWAKKA "<<board[m][n]->getPlayerNum()<<std::endl;
+
 			if (getPlayerNum() == 1)
 			{	
 				if (moved == false)
 				{
-					moved = true;
 					if ((i-2 == m && j == n) && board[m][n]->getPlayerNum() == 2) if (board[m+1][n]->getPlayerNum() == 2) return 3;
 				}
 				if ((i-1 == m && j == n) && board[m][n]->getPlayerNum() == 2) return 3;
@@ -120,7 +123,8 @@ class Pawn : public Piece
 			{		
 				if (moved == false)
 				{
-					moved = true;
+					// 			std::cerr<<"WAKKAWAKKA "<<board[m][n]->getPlayerNum()<<std::endl;
+					// moved = true;
 					if ((i+2 == m && j == n) && board[m][n]->getPlayerNum() == 2) if (board[m-1][n]->getPlayerNum() == 2) return 3;
 				}
 				if ((i+1 == m && j == n) && board[m][n]->getPlayerNum() == 2) return 3;
@@ -143,7 +147,6 @@ class Pawn : public Piece
 
 				if (moved == false)
 				{
-					moved = true;
 					if ((board[i-2][j]->getPlayerNum() == 2) && (board[i-1][j]->getPlayerNum() == 2))
 					{
 						//threats.push_back(loc1d(i-2,j));
@@ -165,7 +168,6 @@ class Pawn : public Piece
 
 				if (moved == false)
 				{
-					moved = true;
 					if ((board[i+2][j]->getPlayerNum() == 2) && (board[i+1][j]->getPlayerNum() == 2))
 					{
 					//	threats.push_back(loc1d(i+2,j));
@@ -195,14 +197,12 @@ class Rook : public Piece
 	public:
 		Rook(int p) : Piece(p)
 		{
-			moved = false;
 			name = "Ro";
 			setN();
 		}
 
 		virtual int canMove(int i, int j, int m, int n, Piece *board[8][8])
 		{
-			if (moved == false) moved = true;
 
 			//this is pretty bad, find better method (theres a way to use temp vars)
 			// if (i == m)
@@ -405,32 +405,39 @@ class Knight : public Piece
 			if (i+2 < 8 && j+1 < 8)
 			if (board[i+2][j+1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				addThreat(i+2,j+1,&threats);
+
 			if (i+1 < 8 && j+2 < 8)
 			if (board[i+1][j+2]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i+1,j+2));
 				addThreat(i+1,j+2,&threats);
-			if (i+2 < 8 && j-1 > 0)
+
+			if (i+2 < 8 && j-1 >= 0)
 			if (board[i+2][j-1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i+2,j-1));
 				addThreat(i+2,j-1,&threats);
-			if (i+1 < 8 && j-2 > 0)
+
+			if (i+1 < 8 && j-2 >= 0)
 			if (board[i+1][j-2]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i+1,j-2));
 				addThreat(i+1,j-2,&threats);
-			if (i-1 > 0 && j-2 > 0)
+
+			if (i-1 >= 0 && j-2 >= 0)
 			if (board[i-1][j-2]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i-1,j-2));
 				addThreat(i-1,j-2,&threats);
-			if (i-2 > 0 && j-1 > 0)
+
+			if (i-2 >= 0 && j-1 >= 0)
 			if (board[i-2][j-1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i-2,j-1));
-				addThreat(i-1,j-2,&threats);
-			if (i-2 > 0 && j+1 < 8)
+				addThreat(i-2,j-1,&threats);
+
+			if (i-2 >= 0 && j+1 < 8)
 			if (board[i-2][j+1]->getPlayerNum() != board[i][j]->getPlayerNum())	
 				//threats.push_back(loc1d(i-2,j+1));
 				addThreat(i-2,j+1,&threats);
-			if (i-2>0 && j+2 < 8)
-			if (board[i-2][j+2]->getPlayerNum() != board[i][j]->getPlayerNum())
+
+			if (i-1>=0 && j+2 < 8)
+			if (board[i-1][j+2]->getPlayerNum() != board[i][j]->getPlayerNum())
 			//	threats.push_back(loc1d(i-1,j+2));
 				addThreat(i-1,j+2,&threats);
 
@@ -944,7 +951,6 @@ class King : public Piece
 	public:
 		King(int p) : Piece(p)
 		{
-			moved = false;
 			name = "Ki";
 			setN();
 			isking = true;
@@ -954,16 +960,17 @@ class King : public Piece
 		{
 			if (moved == false)
 			{//WARNING I THINK CASTLING IS BROKEN IF A PAWN GETS PROMOTED TO A SPOT WHERE IT COULD CASTLE IS THIS ALLOWED?
-				moved = true;
 				if (board[i][7]->moved == false) //is kings side rook
 					if (board[i][6]->getPlayerNum() == 2)
 						if (board[i][5]->getPlayerNum() == 2)
-							return 2;//2 is a special castling number
+							if (m == i && n == 6)
+								return 2;//2 is a special castling number
 				if (board[i][0]->moved == false) //queens side rook
 					if (board[i][3]->getPlayerNum() == 2)
 						if (board[i][2]->getPlayerNum() == 2)
 							if (board[i][1]->getPlayerNum() == 2)
-								return 2;
+								if (m == i && n == 2)
+									return 2;
 			}
 
 			if (i+1 == m && j+1 == n) return 1;
@@ -991,23 +998,23 @@ class King : public Piece
 			if (board[i][j+1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i,j+1));
 				addThreat(i,j+1,&threats);
-			if (i-1 > 0 && j+1 < 8)
+			if (i-1 >= 0 && j+1 < 8)
 			if (board[i-1][j+1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i-1,j+1));
 				addThreat(i-1,j+1,&threats);
-			if (i-1 > 0)
+			if (i-1 >= 0)
 			if (board[i-1][j]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i-1,j));
 				addThreat(i-1,j,&threats);
-			if (i-1 > 0 && j-1 > 0)
+			if (i-1 >= 0 && j-1 >= 0)
 			if (board[i-1][j-1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i-1,j-1));
 				addThreat(i-1,j-1,&threats);
-			if (j-1 > 0)
+			if (j-1 >= 0)
 			if (board[i][j-1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i,j-1));
 				addThreat(i,j-1,&threats);
-			if (i+1 < 8 && j-1 > 0)
+			if (i+1 < 8 && j-1 >= 0)
 			if (board[i+1][j-1]->getPlayerNum() != board[i][j]->getPlayerNum())
 				//threats.push_back(loc1d(i+1,j-1));
 				addThreat(i+1,j-1,&threats);

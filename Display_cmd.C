@@ -5,7 +5,7 @@ class Display_cmd : public Display
 {
 	public:
 		Board *b;
-		Display_cmd(Board *board) : Display(board){;}
+		Display_cmd(Board *board) : Display(){b = board;}
 	
 		int parseNum(char a)
 		{
@@ -24,6 +24,7 @@ class Display_cmd : public Display
 		}
 
 		virtual void update(){
+			std::cerr<<b->getPiece(0,0)->n<<"DONE";
 			std::cout<<"########################################################" << endl;
 			std::cout<<"########################################################" << endl;
 			std::cout<<"########################################################" << endl;
