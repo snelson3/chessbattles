@@ -1,9 +1,9 @@
 #include "Board.C"
 #include <iostream>
 #include <errno.h>
-#include "Display.C"
-#include "Display_cmd.C"
-#include "Display_gui.C"
+#include "Display.cxx"
+#include "Display_cmd.cxx"
+#include "Display_gui.cxx"
 
 class Gamemaster
 {
@@ -315,7 +315,6 @@ class Gamemaster
   							}
   							board.board[g][h] = t2;
   							board.board[i][j] = t1;
-
   						}
   					}
 
