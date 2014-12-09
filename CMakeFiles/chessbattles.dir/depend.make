@@ -120,7 +120,6 @@ CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkRenderingOpenGLModule.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: Board.C
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: Display.cxx
-CMakeFiles/chessbattles.dir/chessbattles.cxx.o: Display_cmd.cxx
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: Display_gui.cxx
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: Gamemaster.C
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: Move.C

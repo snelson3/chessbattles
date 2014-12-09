@@ -1,31 +1,38 @@
+#ifndef GM 
+#define GM
+
+
 #include "Board.C"
 #include <iostream>
 #include <errno.h>
-#include "Display.cxx"
-#include "Display_cmd.cxx"
-#include "Display_gui.cxx"
 
 class Gamemaster
 {
 	public:
 		Board board;
-		Display *display;
+		//Display *display;
 		bool checkmate;
 		bool stalemate;
 		int p[2];
 		int t;
+		int sq1[2];
+		bool s1;
+		int sq2[2];
+		bool s2;
 
 		Gamemaster(int di)
 		{
 			checkmate = false;
 			stalemate = false;
+			s1 = false;
+			s2 = false;
 			p[0] = 0;
 			p[1] = 1;
 			t = 0;
-			if (di == 1)
+			/*if (di == 1)
 				display = new Display_cmd(&board);
 			else if (di == 2)
-				display = new Display_gui(&board);
+				display = new Display_gui(&board);*/
 		}
 
 		const char* getPlayer(void) {if (p[t] == 0) return "White"; if (p[t] == 1) return "Black";
@@ -46,12 +53,16 @@ class Gamemaster
 		int makeMove(void)
 		{
 			//board.displayBoard();
-			display->update();
+			//display->update();
 			std::cout<<"It is currently "<<getPlayer()<<"'s turn"<<endl;
 
 			std::cout<<endl<<"What move do you want to make ";
 			int i, j, m, n;
 
+			i = sq1[0];
+			j = sq1[1];
+			m = sq2[0];
+			n = sq2[1];
 			/****************
 			***BEgin something that should go in it's own function
 			*****************/
@@ -59,7 +70,7 @@ class Gamemaster
 			//cin a letter and then a number corresponding to a chessboard
 			//convert to i/j (to access a spot in a 1d array but its a 2d array)
 
-			display->getMove(&i,&j,&m,&n);
+			//display->getMove(&i,&j,&m,&n);
 
 			//will need to figure out some tests for valid input
 			// char x, s; int y, t;
@@ -398,3 +409,6 @@ class Gamemaster
 		
 		}
 };
+
+
+#endif

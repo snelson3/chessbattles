@@ -1,6 +1,7 @@
 #include "Display.cxx"
 #include "Board.C"
 #include <iostream>
+#include "Gamemaster.C"
 
 
 /*=========================================================================
@@ -68,21 +69,24 @@ class Triangle
 class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
 {
         public:
+                Board *b;
+                Gamemaster *gm;
                 static vtk441InteractorStyle *New();
 
                 vtk441InteractorStyle()
                 {
-                        shouldPick = false;
+                        shouldPick = true;
                 }
+
+                void setBoard(Board *board) { b = board;}
+                void setGM(Gamemaster *gmaster) { gm = gmaster;}
 
                 void toMove(double *pos,int *move)
                 {
-
-
                   //so you round
                   cerr<<"  so pos is " << pos[0] << pos[1]<<endl;
-                  move[0] = round(pos[0]);
-                  move[1] = round(pos[1]);
+                  move[0] = round(pos[1]);
+                  move[1] = round(pos[0]);
                   //you add 12 to get rid of the negatives
                   move[0]+=12;
                   move[1]+=12;
@@ -108,6 +112,8 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
 
                 virtual void OnLeftButtonDown()
                 {
+                        if (!(gm->checkmate && gm->stalemate))
+                        {
                         if (shouldPick)
                         {
                                 vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -126,13 +132,55 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                                 cerr << " converted to " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
                                 int move[2]; 
                                 toMove(pos,move);
-                                cerr << " is square " << move[0] << ", " << move[1] << endl;
                                 if ((move[0] < 0 || move[0] > 7 ) || (move[1] < 0 || move[1] > 7 ))
                                   cerr <<" Input out of range, invalid"<<endl;
                                 else
-                                  shouldPick = false;
+                                {
+                                  cerr << " is square " << move[0] << ", " << move[1] << endl;
+                                  b->displayBoard();
+                                  cerr << "    is piece " << b->board[move[0]][move[1]]->getName() <<endl;
+
+                                  if (!gm->s1)
+                                  {
+                                   
+                                    //gm->sq1 = move;
+                                    gm->sq1[0] = move[0];
+                                    gm->sq1[1] = move[1];
+                                    gm->s1 = true;
+                                  }
+                                  else if (!gm->s2)
+                                  {
+                                    cerr << "moving " << b->board[gm->sq1[0]][gm->sq1[1]]->getName() << 
+                                                " to " << b->board[move[0]][move[1]]->getName();
+                                    //gm->sq2 = move;
+                                    gm->sq2[0] = move[0];
+                                    gm->sq2[1] = move[1];
+                                    gm->s2 = true;
+                                    if (gm->makeMove() == -1)
+                                    {
+                                      cerr<<"bad move, try again "<<gm->getPlayer()<<endl;; 
+                                    }
+                                    else
+                                    {
+                                      gm->changeTurn(); //have the player turns be in a length 2 array so you can just -1
+                                      gm->isCheckmate();
+                                    }
+                                    gm->s1 = false;
+                                    gm->s2 = false;
+                                  }
+                                  cerr<<"your move "<<gm->getPlayer()<<endl;
+                                  rw->Render();
+                                 // shouldPick = false;
+                                }
                         }
+                      }
+                      else
+                      {
+                        cerr<<"checkmate or stalemate doofus. GAMEOVER"<<endl;
+                        shouldPick = false;
+                      }
                         vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+                      
                 };
 
         private:
@@ -862,6 +910,7 @@ class Display_gui : public Display
 {
 	public:
 		Board *b;
+    Gamemaster *gm;
     vtkSmartPointer<vtkSphereSource> sphere;
     vtkSmartPointer<vtk441MapperPart3> win3Mapper;
     vtkSmartPointer<vtkActor> win3Actor;
@@ -871,9 +920,10 @@ class Display_gui : public Display
     vtkSmartPointer<vtkLight> light;
     vtk441InteractorStyle *style;
     //(vtkInteractorStyle *)iren;
-		Display_gui(Board *board) : Display() 
+		Display_gui(Gamemaster *gamemaster) : Display() 
 		{
-			b = board;
+			b = &gamemaster->board;
+      gm = gamemaster;
 // Dummy input so VTK pipeline mojo is happy.
   //
   sphere = vtkSmartPointer<vtkSphereSource>::New();
@@ -897,6 +947,8 @@ class Display_gui : public Display
   iren->SetRenderWindow(renWin);
 
   style = vtk441InteractorStyle::New();
+  style->setGM(gm);
+  style->setBoard(b);
   iren->SetInteractorStyle(style);
 
   // Add the actors to the renderer, set the background and size.
@@ -924,8 +976,9 @@ class Display_gui : public Display
   //
   ((vtkInteractorStyle *)iren->GetInteractorStyle())->SetAutoAdjustCameraClippingRange(0);
   //iren->GetInteractorStyle()->SetAutoAdjustCameraClippingRange(0);
+  cerr<<"initializing"<<endl;
   iren->Initialize();
-  //iren->Start();
+  iren->Start();
 		}
 		virtual void update()
     {
@@ -957,6 +1010,11 @@ class Display_gui : public Display
     
 		virtual void getMove(int *i,int *j,int *m,int *n)
     {
+      std::cerr<<"reinitializing "<<iren->GetEnabled()<<" "<<iren->GetInitialized();
+     // iren->ReInitialize();      
+      //iren->Start();
+      //iren->Initialize();
+      
       char x, s; int y, t;
       std::cout<<endl<<"Starting X ";
       std::cin>>x;

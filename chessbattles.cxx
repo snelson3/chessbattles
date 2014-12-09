@@ -1,5 +1,7 @@
 #include <iostream>
 #include "Gamemaster.C"
+#include "Display_gui.cxx"
+#include "Display.cxx"
 
 using std::endl;
 
@@ -8,11 +10,13 @@ void linebreak(){
 };
 
 void newgame(int display){
-	Gamemaster gm = Gamemaster(display);
-
+	Gamemaster *gm = new Gamemaster(1);
+	Display *ds = new Display_gui(gm); 
 	//gm.board.displayBoard();
 	//gm.display->update();
 
+	while(1);
+/*
 	while (gm.checkmate == false && gm.stalemate == false)
 	{
 		while (gm.makeMove() == -1) ;
@@ -25,6 +29,8 @@ void newgame(int display){
 		std::cout<<"Stalemate\n"<<endl;
 	else 
 		std::cout<<"The game broke\n";
+*/
+
 };
 
 int main() {
