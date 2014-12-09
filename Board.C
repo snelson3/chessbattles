@@ -11,6 +11,8 @@ class Board
 	public:
 		Piece* board[8][8];
 		int active[2];
+		int moveset[4];
+		bool mwaiting;
 		vector<int> Threats;
 
 		// White Black Empty
@@ -20,6 +22,7 @@ class Board
 
 		Board(void)
 		{
+			mwaiting = false;
 			active[0] = 9;
 			active[1] = 9;
 			for (int i  = 0; i < 8; i++)
@@ -67,6 +70,23 @@ class Board
 
 			// board[4][4] = new Knight(0);
 		}
+
+		void setMoveWaiting(int i, int j, int m, int n)
+		{
+			moveset[0] = i;
+			moveset[1] = j;
+			moveset[2] = m;
+			moveset[3] = n;
+			mwaiting = true;
+		}
+
+		void clearMoveWaiting()
+		{
+			mwaiting = false;
+		}
+
+		bool getMoveWaiting()
+		{ return mwaiting;}
 
 		void setThreats(vector<int> threats)
 		{

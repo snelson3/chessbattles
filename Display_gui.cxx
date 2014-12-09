@@ -640,6 +640,12 @@ class vtk441MapperPart3 : public vtk441Mapper
     else ;
    }
 
+   void Animate()
+   {
+    cerr<<"Animating from "<<board->moveset[0]<<","<<board->moveset[1]<<" to "<<board->moveset[2]<<board->moveset[3]<<endl;
+    board->clearMoveWaiting();
+   }
+
     void DrawBoard()
    {
     //Draw a brown box then make 8x8 grid of alternating spaces on top of the box
@@ -671,6 +677,11 @@ class vtk441MapperPart3 : public vtk441Mapper
     }
     glPopMatrix();
 
+    if (board->getMoveWaiting())
+      Animate();
+    else
+    {
+
     glPushMatrix();
     //start drawing the pieces here
     //now I'm here at 1/1 or 0/0
@@ -690,6 +701,8 @@ class vtk441MapperPart3 : public vtk441Mapper
         glTranslate(0,sz_square*0.71*2,0);
       }
     glPopMatrix();
+
+  }
 
     glPopMatrix();
    };
@@ -928,6 +941,7 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                                     }
                                     else
                                     {
+                                      b->setMoveWaiting(gm->sq1[0],gm->sq1[1],gm->sq2[0],gm->sq2[1]);
                                       gm->changeTurn(); //have the player turns be in a length 2 array so you can just -1
                                       gm->isCheckmate();
                                       setText(getTurn());

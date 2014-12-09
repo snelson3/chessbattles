@@ -124,7 +124,7 @@ class Gamemaster
 			if (board.getPiece(i,j) == board.getPiece(m,n))
 			{
 				std::cout<<"MUST MOVE A PIECE!!!!"<<endl;
-				return -1;
+				return -2;
 			}
 
 			int mval = board.getPiece(i,j)->canMove(i,j,m,n,board.board);
@@ -133,14 +133,14 @@ class Gamemaster
 			if (board.getPiece(m,n)->getPlayerNum() == getTurn() && mval != 2)
 			{
 				std::cout<<"CANT TAKE YOUR OWN PIECE!!!"<<endl;
-				return -1;
+				return -3;
 			}
 
 
 			if (mval == -1)
 			{
 				std::cout<<"THAT PIECE CANT MOVE THERE!!!"<<endl;
-				return -1;
+				return -4;
 			}
 
 			else if (mval == 2)
@@ -162,7 +162,7 @@ class Gamemaster
 						board.board[i][2] = new Empty(2);
 						board.board[i][3] = new Empty(2);
 						std::cerr<<"Your king would be in check!\n";
-						return -1;
+						return -5;
 						}	
 				}
 				else //kings side rook
@@ -178,7 +178,7 @@ class Gamemaster
 						board.board[i][5] = new Empty(2);
 						board.board[i][6] = new Empty(2);
 						std::cerr<<"Your king would be in check!"<<endl;
-						return -1;
+						return -5;
 						}	
 				}
 				std::cout<<"CASTLED";
@@ -203,14 +203,15 @@ class Gamemaster
 						std::cerr<<"Your king would be in check!";
 						board.board[i][j] = new Pawn(t);
 						board.board[m][n] = temp;
-						return -1;
+						return -5;
 					}
 
 					int i = 0;
 					std::cout<<"CONGRATS, your pawn is ready to evolve!!";
 					std::cout<<"\ndo you want your digimon to divivolve into...\n";
 					std::cout<<"a queen? (press 1) ";
-					std::cin>>i;
+					//std::cin>>i;
+					i = 1;//fix this in post
 					if (i != 1)
 					{
 						std::cout<<"\na rook? ";
@@ -263,7 +264,7 @@ class Gamemaster
 					board.board[i][j] = board.board[m][n];
 					board.board[m][n] = temp;
 					std::cerr<<"Your king would be in check!";
-					return -1;
+					return -5;
 				}
 			}
 
