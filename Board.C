@@ -10,14 +10,18 @@ class Board
 {
 	public:
 		Piece* board[8][8];
+		int active[2];
+		vector<int> Threats;
 
 		// White Black Empty
 		//   0     1     2
 
 		Piece *getPiece(int i, int j){ return board[i][j];}
 
-		Board(void) 
+		Board(void)
 		{
+			active[0] = 9;
+			active[1] = 9;
 			for (int i  = 0; i < 8; i++)
 				for (int j = 0; j < 8; j++)
 				{
@@ -49,7 +53,7 @@ class Board
 						else if (j == 4)
 							board[i][j] = new King(1);
 						else
-							perror("Invalid location during setup");			
+							perror("Invalid location during setup");
 					}
 					else if (i == 1) board[i][j] = new Pawn(0);
 					else if (i == 6) board[i][j] = new Pawn(1);
@@ -64,6 +68,24 @@ class Board
 			// board[4][4] = new Knight(0);
 		}
 
+		void setThreats(vector<int> threats)
+		{
+			Threats = threats;
+		}
+
+		void clearThreats()
+		{
+			vector<int> empty;
+			Threats = empty;
+		}
+
+		void setActive(int i, int j)
+		{
+			active[0] = i;
+			active[1] = j;
+		}
+
+
 		 void displayBoard(){
 		 	std::cout<<"########################################################" << endl;
 		 	std::cout<<"########################################################" << endl;
@@ -77,6 +99,16 @@ class Board
 
 		 }
 
+		bool isThreat(int i, int j)
+		{
+			//return true;
+			for (std::vector<int>::iterator z = Threats.begin(); z != Threats.end(); ++z)
+			{
+				if (board[0][0]->loc1d(i,j) == z[0])
+					return true;
+			}
+			return false;
+		}
 //When separating displays make 2 classes, one for console display, one for gui display., callable
 
 		void checkThreats(int i, int j){
@@ -112,7 +144,7 @@ class Board
 						 if (q == false)
 						 	std::cout<<"   ";
 						//if its a threat write the X
-						//else write 
+						//else write
 					}
 					std::cout<<" #";
 				}
@@ -143,7 +175,7 @@ class Board
 					if (board[i][j]->getPlayerNum() != 2 && board[i][j]->getPlayerNum() != t)
 					{
 						vector<int> moves = board[i][j]->getThreats(i,j,board);
-						for(std::vector<int>::iterator mo = moves.begin(); mo != moves.end(); ++mo) 
+						for(std::vector<int>::iterator mo = moves.begin(); mo != moves.end(); ++mo)
 						{
 							int t;
 							int y;

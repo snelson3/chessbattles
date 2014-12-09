@@ -38,6 +38,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkJPEGReader.h"
 #include "vtkImageData.h"
+#include <vtkTextActor.h>
 
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
@@ -65,128 +66,6 @@ class Triangle
 };
 
 
-
-class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
-{
-        public:
-                Board *b;
-                Gamemaster *gm;
-                static vtk441InteractorStyle *New();
-
-                vtk441InteractorStyle()
-                {
-                        shouldPick = true;
-                }
-
-                void setBoard(Board *board) { b = board;}
-                void setGM(Gamemaster *gmaster) { gm = gmaster;}
-
-                void toMove(double *pos,int *move)
-                {
-                  //so you round
-                  cerr<<"  so pos is " << pos[0] << pos[1]<<endl;
-                  move[0] = round(pos[1]);
-                  move[1] = round(pos[0]);
-                  //you add 12 to get rid of the negatives
-                  move[0]+=12;
-                  move[1]+=12;
-                  //you divide by 3 cause thats the size (cheater)
-                  move[0]= move[0]/3;
-                  move[1]=move[1]/3;
-                  //you ceiling to get the int
-                  move[0] = ceil(move[0]);
-                  move[1] = ceil(move[1]);
-                }
-
-                virtual void OnChar()
-                {
-                        vtkRenderWindowInteractor *rwi = this->Interactor;
-                        char pressedChar = rwi->GetKeyCode();
-                        if (pressedChar == 'p')
-                        {
-                                cerr << "Should pick!" << endl;
-                                shouldPick = true;
-                        }
-                        vtkInteractorStyleTrackballCamera::OnChar();
-                };
-
-                virtual void OnLeftButtonDown()
-                {
-                        if (!(gm->checkmate && gm->stalemate))
-                        {
-                        if (shouldPick)
-                        {
-                                vtkRenderWindowInteractor *rwi = this->Interactor;
-                                vtkRenderWindow *rw = rwi->GetRenderWindow();
-                                int *size = rw->GetSize();
-                                int x = this->Interactor->GetEventPosition()[0];
-                                int y = this->Interactor->GetEventPosition()[1];
-                                vtkRenderer *ren = rwi->FindPokedRenderer(x, y);
-                                double pos[3];
-                                pos[0] = 2.0*((double)x/(double)size[0])-1;
-                                pos[1] = 2.0*((double)y/(double)size[1])-1;
-                                pos[2] = ren->GetZ(x, y);
-                                cerr << "Picked on " << x << ", " << y << endl;
-                                cerr << " = " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
-                                ren->ViewToWorld(pos[0], pos[1], pos[2]);
-                                cerr << " converted to " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
-                                int move[2]; 
-                                toMove(pos,move);
-                                if ((move[0] < 0 || move[0] > 7 ) || (move[1] < 0 || move[1] > 7 ))
-                                  cerr <<" Input out of range, invalid"<<endl;
-                                else
-                                {
-                                  cerr << " is square " << move[0] << ", " << move[1] << endl;
-                                  b->displayBoard();
-                                  cerr << "    is piece " << b->board[move[0]][move[1]]->getName() <<endl;
-
-                                  if (!gm->s1)
-                                  {
-                                   
-                                    //gm->sq1 = move;
-                                    gm->sq1[0] = move[0];
-                                    gm->sq1[1] = move[1];
-                                    gm->s1 = true;
-                                  }
-                                  else if (!gm->s2)
-                                  {
-                                    cerr << "moving " << b->board[gm->sq1[0]][gm->sq1[1]]->getName() << 
-                                                " to " << b->board[move[0]][move[1]]->getName();
-                                    //gm->sq2 = move;
-                                    gm->sq2[0] = move[0];
-                                    gm->sq2[1] = move[1];
-                                    gm->s2 = true;
-                                    if (gm->makeMove() == -1)
-                                    {
-                                      cerr<<"bad move, try again "<<gm->getPlayer()<<endl;; 
-                                    }
-                                    else
-                                    {
-                                      gm->changeTurn(); //have the player turns be in a length 2 array so you can just -1
-                                      gm->isCheckmate();
-                                    }
-                                    gm->s1 = false;
-                                    gm->s2 = false;
-                                  }
-                                  cerr<<"your move "<<gm->getPlayer()<<endl;
-                                  rw->Render();
-                                 // shouldPick = false;
-                                }
-                        }
-                      }
-                      else
-                      {
-                        cerr<<"checkmate or stalemate doofus. GAMEOVER"<<endl;
-                        shouldPick = false;
-                      }
-                        vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-                      
-                };
-
-        private:
-                bool shouldPick;
-};
-vtkStandardNewMacro(vtk441InteractorStyle);
 
 
 
@@ -248,6 +127,7 @@ class vtk441MapperPart3 : public vtk441Mapper
    static vtk441MapperPart3 *New();
 
    GLuint displayList;
+   int active[2];
    float sz_stand, sz_board, sz_square;
    float sz_pa_body,sz_pa_head,sz_pa_body_ht;
    float sz_bishop_base, sz_bishop_ht,sz_bishop_width;
@@ -260,6 +140,8 @@ class vtk441MapperPart3 : public vtk441Mapper
 
    vtk441MapperPart3()
    {
+    active[0] = 9;
+    active[1] = 9;
     sz_board = 20;
     //sz_square = sz_board/9;
     sz_square = sz_board/9;
@@ -292,6 +174,12 @@ class vtk441MapperPart3 : public vtk441Mapper
     sz_kn_ht = sz_pa_body_ht + (0.17*sz_pa_body_ht);
     sz_kn_head = sz_pa_head - (0.20*sz_pa_head);
     sz_kn_face = sz_kn_head - (0.30*sz_kn_head);
+   }
+
+   void setActive(int i, int j)
+   {
+    active[0] = i;
+    active[1] = j;
    }
 
    void setBoard(Board *b)
@@ -479,7 +367,9 @@ class vtk441MapperPart3 : public vtk441Mapper
    void color(int co)
    {
    	if (co == 0) Grey();
-   	else LightBrown();
+   	else if (co == 7)
+      Red();
+    else LightBrown();
    }
 
    //draw black if 1 and white if 0
@@ -762,104 +652,43 @@ class vtk441MapperPart3 : public vtk441Mapper
     glPopMatrix();
     glTranslatef(0,0,sz_board/2);
 
-    glPushMatrix();
-     glTranslatef(-sz_square*0.71,sz_square*0.71,0);
-
-     for (int i = 0; i < 4; i++)
-     {
-      glPushMatrix();
-       for (int j = 0; j < 4; j++)
-       {
-        glTranslatef(sz_square*0.71*2,0,0);
-        DrawSquare((i+j+1) % 2);
-       }
-       glPopMatrix();
-       glTranslatef(0,sz_square*0.71*2,0);
-     }
-    glPopMatrix();
+ glTranslatef( - ( (sz_square*0.71) + ( (sz_square*0.71*2) *3) ), - ( (sz_square*0.71) + ( (sz_square*0.71*2) *3) ) ,0);
 
     glPushMatrix();
-     glTranslatef(-sz_square*0.71,-(sz_square*0.71),0);
-     for (int i = 0; i < 4; i++)
-     {
+    for (int i = 0; i < 8; i++)
+    {
       glPushMatrix();
-      for (int j = 0; j < 4; j++)
+      for (int j = 0; j <8; j++)
       {
-        glTranslatef(sz_square*0.71*2,0,0);
-        DrawSquare((i+j) % 2);
-      }
-      glPopMatrix();
-      glTranslate(0,-(sz_square*0.71*2),0);
-     }
-    glPopMatrix();
-
-    glPushMatrix();
-     glTranslatef((sz_square*0.71),sz_square*0.71,0);
-     for (int i = 0; i < 4; i++)
-     {
-      glPushMatrix();
-      for (int j = 0; j < 4; j++)
-      {
-        glTranslatef(-(sz_square*0.71)*2,0,0);
-        DrawSquare((i+j) % 2);
+        if (!board->isThreat(i,j))
+          DrawSquare((i+j)%2);
+        else
+          DrawSquare((7));
+        glTranslate(sz_square*0.71*2,0,0);
       }
       glPopMatrix();
       glTranslate(0,sz_square*0.71*2,0);
-     }
-    glPopMatrix();
-
-    glPushMatrix();
-     glTranslatef((sz_square*0.71),-(sz_square*0.71),0);
-     for (int i = 0; i < 4; i++)
-     {
-      glPushMatrix();
-      for (int j = 0; j < 4; j++)
-      {
-        glTranslate(-(sz_square*0.71)*2,0,0);
-        DrawSquare((i+j+1) % 2);
-      }
-      glPopMatrix();
-      glTranslate(0,-(sz_square*0.71*2),0);
-     }
+    }
     glPopMatrix();
 
     glPushMatrix();
     //start drawing the pieces here
-    glTranslatef( - ( (sz_square*0.71) + ( (sz_square*0.71*2) *3) ), - ( (sz_square*0.71) + ( (sz_square*0.71*2) *3) ) ,0);
-    
     //now I'm here at 1/1 or 0/0
+    glTranslatef(0,0,sz_square/5);
     for (int i = 0; i < 8; i++)
       {
         glPushMatrix();
         for (int j = 0; j < 8; j++)
         {
-          DrawPiece(board->board[i][j]->getName(), board->board[i][j]->getPlayerNum());
+          if ((i == board->active[0]) && (j == board->active[1]))
+            DrawPiece(board->board[i][j]->getName(),7);
+          else
+            DrawPiece(board->board[i][j]->getName(), board->board[i][j]->getPlayerNum());
           glTranslate(sz_square*0.71*2,0,0);
         }
         glPopMatrix();
         glTranslate(0,sz_square*0.71*2,0);
       }
-
-
-
-
-    // glPushMatrix();
-    // DrawBackRow(0);
-    // glPopMatrix();
-    // glTranslate(0,sz_square*0.71*2,0);
-    // glPushMatrix();
-    // DrawPawns(0);
-    // glPopMatrix();
-    // for (int i = 0; i < 5; i++)
-    //   glTranslate(0,sz_square*0.71*2,0);
-    // glPushMatrix();
-    // DrawPawns(1);
-    // glPopMatrix();
-    // glTranslate(0,sz_square*0.71*2,0);
-    // DrawBackRow(1);
-    // glPopMatrix();
-
-
     glPopMatrix();
 
     glPopMatrix();
@@ -902,6 +731,245 @@ class vtk441MapperPart3 : public vtk441Mapper
    }
 
 };
+
+
+class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
+{
+        public:
+                Board *b;
+                Gamemaster *gm;
+                double defpos[3];
+                bool defset;
+                vtkTextActor *act;
+                int view;
+                static vtk441InteractorStyle *New();
+
+                vtk441InteractorStyle()
+                {
+                        shouldPick = true;
+                        defset = false;
+                        view = 1; //this means it is 'white'
+                }
+
+                void setActor(vtkTextActor *a){act = a;}
+                void setBoard(Board *board) { b = board;}
+                void setGM(Gamemaster *gmaster) { gm = gmaster;}
+
+                void setText(const char * text)
+                {
+                  act->SetInput(text);
+                }
+                const char * getTurn()
+                {
+                  int i = gm->getTurn();
+                  if (i == 0)
+                    return "White to move";
+                  else
+                    return "Black to move";
+                }
+
+                void showCheckmate(int i)
+                {
+                  if (i == 0)
+                    setText("Checkmate!!! Black Wins!!!");
+                  else if (i == 1)
+                    setText("Checkmate!!! White Wins!!!");
+                }
+
+                void showStalemate()
+                {
+                  setText("Stalemate!!! It's a tie!!!");
+                }
+
+                const char *getErr(int e)
+                {
+                  if (e == -1)
+                    return "That's not your piece!";
+                  else if (e == -2)
+                    return "You must move a piece!";
+                  else if (e == -3)
+                    return "You can't take your own piece!";
+                  else if (e == -4)
+                    return "That piece can't move there!";
+                  else        
+                    return "That would put your king in check!";
+                }
+
+                void toMove(double *pos,int *move)
+                {
+                  //so you round
+                  cerr<<"  so pos is " << pos[0] << pos[1]<<endl;
+                  move[0] = round(pos[1]);
+                  move[1] = round(pos[0]);
+                  //you add 12 to get rid of the negatives
+                  move[0]+=12;
+                  move[1]+=12;
+                  //you divide by 3 cause thats the size (cheater)
+                  move[0]= move[0]/3;
+                  move[1]=move[1]/3;
+                  //you ceiling to get the int
+                  move[0] = ceil(move[0]);
+                  move[1] = ceil(move[1]);
+                }
+
+                virtual void OnChar()
+                {
+                        vtkRenderWindowInteractor *rwi = this->Interactor;
+                        char pressedChar = rwi->GetKeyCode();
+                        vtkRenderWindow *rw = rwi->GetRenderWindow();
+                        int x = this->Interactor->GetEventPosition()[0];
+                        int y = this->Interactor->GetEventPosition()[1];
+                        vtkRenderer *ren = rwi->FindPokedRenderer(x, y);
+                        double speed = 10;
+                        double zoom = 5;
+                        double pos[3];
+                        double rot = 7;
+                        double angle = 10;
+                        pos[0] = ren->GetActiveCamera()->GetPosition()[0];
+                        pos[1] = ren->GetActiveCamera()->GetPosition()[1];
+                        pos[2] = ren->GetActiveCamera()->GetPosition()[2];
+                        if (!defset)
+                        {
+                          defset = true;
+                          defpos[0] = pos[0];
+                          defpos[1] = pos[1];
+                          defpos[2] = pos[2];
+                        }
+                        if (pressedChar == 'w')
+                               //move camera forward
+                          ren->GetActiveCamera()->SetPosition(pos[0],pos[1]+speed,pos[2]);
+                        else if (pressedChar == 'a')
+                              //move camera left
+                          ren->GetActiveCamera()->SetPosition(pos[0]-speed,pos[1],pos[2]);
+                        else if (pressedChar == 's')
+                              //move camera down
+                          ren->GetActiveCamera()->SetPosition(pos[0],pos[1]-speed,pos[2]);
+                        else if (pressedChar == 'd')
+                              //move camera down
+                          ren->GetActiveCamera()->SetPosition(pos[0]+speed,pos[1],pos[2]);
+                        else if (pressedChar == 'z')
+                              //'zoom in'
+                          ren->GetActiveCamera()->SetPosition(pos[0],pos[1],pos[2]-zoom);
+                        else if (pressedChar == 'c')
+                              //'zoom out'
+                          ren->GetActiveCamera()->SetPosition(pos[0],pos[1],pos[2]+zoom);
+                        else if (pressedChar == 'x')
+                              //'reset to default'
+                          ren->GetActiveCamera()->SetPosition(defpos[0],defpos[1],defpos[2]);
+                        else if (pressedChar == 'p')
+                          setText(getTurn());
+                        else if (pressedChar == 'i')
+                              //invert to see from other players pov
+                          view=view*-1;
+                          ren->GetActiveCamera()->SetViewUp(0, view, 0 );
+                        rw->Render();
+                        vtkInteractorStyleTrackballCamera::OnChar();
+                };
+
+                virtual void OnLeftButtonDown()
+                {
+                        if (!(gm->checkmate && gm->stalemate))
+                        {
+                        if (shouldPick)
+                        {
+                                vtkRenderWindowInteractor *rwi = this->Interactor;
+                                vtkRenderWindow *rw = rwi->GetRenderWindow();
+                                int *size = rw->GetSize();
+                                int x = this->Interactor->GetEventPosition()[0];
+                                int y = this->Interactor->GetEventPosition()[1];
+                                vtkRenderer *ren = rwi->FindPokedRenderer(x, y);
+                                double pos[3];
+                                pos[0] = 2.0*((double)x/(double)size[0])-1;
+                                pos[1] = 2.0*((double)y/(double)size[1])-1;
+                                pos[2] = ren->GetZ(x, y);
+                                cerr << "Picked on " << x << ", " << y << endl;
+                                cerr << " = " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
+                                ren->ViewToWorld(pos[0], pos[1], pos[2]);
+                                cerr << " converted to " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
+                                int move[2]; 
+                                toMove(pos,move);
+                                if ((move[0] < 0 || move[0] > 7 ) || (move[1] < 0 || move[1] > 7 ))
+                                {
+                                  cerr <<" Input out of range, invalid"<<endl;
+                                  setText("Input out of range, invalid");
+                                }
+                                else
+                                {
+                                  cerr << " is square " << move[0] << ", " << move[1] << endl;
+                                  b->displayBoard();
+                                  cerr << "    is piece " << b->board[move[0]][move[1]]->getName() <<endl;
+
+                                  char MSG[50];
+                                  sprintf(MSG,"Selected: %s at %d,%d",b->board[move[0]][move[1]]->getName(),move[0],move[1]);
+                                  act->SetInput(MSG);
+
+                                  if (!gm->s1)
+                                  {
+                                    //gm->sq1 = move;
+                                    gm->sq1[0] = move[0];
+                                    gm->sq1[1] = move[1];
+                                    gm->s1 = true;
+                                    b->setActive(move[0],move[1]);
+                                    b->setThreats(b->board[move[0]][move[1]]->getThreats(move[0],move[1],b->board));
+                                  }
+                                  else if (!gm->s2)
+                                  {
+                                    cerr << "moving " << b->board[gm->sq1[0]][gm->sq1[1]]->getName() << 
+                                                " to " << b->board[move[0]][move[1]]->getName();
+                                    //gm->sq2 = move;
+                                    gm->sq2[0] = move[0];
+                                    gm->sq2[1] = move[1];
+                                    gm->s2 = true;
+                                    int e = gm->makeMove();
+                                    if (e <= -1)
+                                    {
+                                      cerr<<"bad move, try again "<<gm->getPlayer()<<endl;; 
+                                      setText(getErr(e));
+                                    }
+                                    else
+                                    {
+                                      gm->changeTurn(); //have the player turns be in a length 2 array so you can just -1
+                                      gm->isCheckmate();
+                                      setText(getTurn());
+                                    }
+                                    gm->s1 = false;
+                                    gm->s2 = false;
+                                    b->setActive(9,9);
+                                    b->clearThreats();
+                                  }
+                                  cerr<<"your move "<<gm->getPlayer()<<endl;
+                                  
+
+                                  if (gm->checkmate)
+                                  {
+                                    shouldPick = false;
+                                    showCheckmate(gm->getTurn());
+                                  }
+                                  else if (gm->stalemate)
+                                  {
+                                    shouldPick = false;
+                                    showStalemate();
+                                  }
+                                  rw->Render();
+                                 // shouldPick = false;
+                                }
+                        }
+                      }
+                      else
+                      {
+                        cerr<<"checkmate or stalemate doofus. GAMEOVER"<<endl;
+                        shouldPick = false;
+                      }
+                        vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+                      
+                };
+
+        private:
+                bool shouldPick;
+};
+vtkStandardNewMacro(vtk441InteractorStyle);
+
+
 
 vtkStandardNewMacro(vtk441MapperPart3);
 
@@ -958,6 +1026,12 @@ class Display_gui : public Display
       ren3->AddActor(win3Actor);
   ren3->SetBackground(0.3, 0.3, 0.3);
   renWin->SetSize(500, 500);
+
+
+  vtkTextActor *tx1 = vtkTextActor::New();
+  tx1->SetInput("White to move");
+  ren3->AddActor(tx1);
+  style->setActor(tx1);
 
   // Set up the lighting.
   //
