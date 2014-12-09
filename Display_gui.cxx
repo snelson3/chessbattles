@@ -2,7 +2,7 @@
 #include "Board.C"
 #include <iostream>
 #include "Gamemaster.C"
-
+#include "Piece.C"
 
 /*=========================================================================
 
@@ -50,6 +50,11 @@
 #include <vtkCellArray.h>
 #include <cmath>
 #include <vector>
+
+const double frames = 30;
+const int sz_board = 20;
+const double sz_square = sz_board/9;
+const double sqDist = sz_square*0.71*2;
 
 void glTranslate(float x, float y, float z)
 {
@@ -128,7 +133,7 @@ class vtk441MapperPart3 : public vtk441Mapper
 
    GLuint displayList;
    int active[2];
-   float sz_stand, sz_board, sz_square;
+   float sz_stand;//, sz_board, sz_square;
    float sz_pa_body,sz_pa_head,sz_pa_body_ht;
    float sz_bishop_base, sz_bishop_ht,sz_bishop_width;
    int bishop_layers;
@@ -142,9 +147,9 @@ class vtk441MapperPart3 : public vtk441Mapper
    {
     active[0] = 9;
     active[1] = 9;
-    sz_board = 20;
-    //sz_square = sz_board/9;
-    sz_square = sz_board/9;
+    // sz_board = 20;
+    // //sz_square = sz_board/9;
+    // sz_square = sz_board/9;
     sz_stand = sz_square-(0.3*sz_square);
 
     sz_pa_body = sz_stand-(0.35*sz_stand);
@@ -534,7 +539,7 @@ class vtk441MapperPart3 : public vtk441Mapper
       glScalef(sz_queen_head,sz_queen_head,sz_queen_head);
       DrawSphere();
       glPushMatrix();
-       glTranslatef(0,0,sz_queen_hat*0.25);
+       glTranslatef(0,0,sz_queen_hat*1.25);
        glScalef(sz_queen_hat,sz_queen_hat,sz_queen_hat*0.5);
        DrawSphere();
       glPopMatrix();
@@ -640,12 +645,6 @@ class vtk441MapperPart3 : public vtk441Mapper
     else ;
    }
 
-   void Animate()
-   {
-    cerr<<"Animating from "<<board->moveset[0]<<","<<board->moveset[1]<<" to "<<board->moveset[2]<<board->moveset[3]<<endl;
-    board->clearMoveWaiting();
-   }
-
     void DrawBoard()
    {
     //Draw a brown box then make 8x8 grid of alternating spaces on top of the box
@@ -653,10 +652,10 @@ class vtk441MapperPart3 : public vtk441Mapper
     glPushMatrix();
     DarkBrown();
     glRotatef(45,0,0,1);
-    glScalef(sz_board,sz_board,sz_board/2);
+    glScalef(sz_board,sz_board,sz_board/4);
     DrawCube();
     glPopMatrix();
-    glTranslatef(0,0,sz_board/2);
+    glTranslatef(0,0,sz_board/4);
 
  glTranslatef( - ( (sz_square*0.71) + ( (sz_square*0.71*2) *3) ), - ( (sz_square*0.71) + ( (sz_square*0.71*2) *3) ) ,0);
 
@@ -670,39 +669,49 @@ class vtk441MapperPart3 : public vtk441Mapper
           DrawSquare((i+j)%2);
         else
           DrawSquare((7));
-        glTranslate(sz_square*0.71*2,0,0);
+        glTranslate(sqDist,0,0);
       }
       glPopMatrix();
-      glTranslate(0,sz_square*0.71*2,0);
+      glTranslate(0,sqDist,0);
     }
     glPopMatrix();
 
-    if (board->getMoveWaiting())
-      Animate();
-    else
-    {
 
     glPushMatrix();
     //start drawing the pieces here
     //now I'm here at 1/1 or 0/0
     glTranslatef(0,0,sz_square/5);
+
     for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
       {
         glPushMatrix();
-        for (int j = 0; j < 8; j++)
+        int co;
+        if ((i == board->active[0])&&(j==board->active[1]))
+          co = 7;
+        else
+          co = board->board[i][j]->getPlayerNum();
+
+        glTranslate(sqDist*j,0,0);
+
+        if (board->yoffset[i][j])
         {
-          if ((i == board->active[0]) && (j == board->active[1]))
-            DrawPiece(board->board[i][j]->getName(),7);
-          else
-            DrawPiece(board->board[i][j]->getName(), board->board[i][j]->getPlayerNum());
-          glTranslate(sz_square*0.71*2,0,0);
+          glTranslate(0,board->yoffset[i][j],0);
         }
+
+        if (board->xoffset[i][j])
+        {
+          glTranslate(board->xoffset[i][j],0,0);
+        }
+
+        glTranslate(0,(sqDist*i),0);
+        DrawPiece(board->board[i][j]->getName(),co);
         glPopMatrix();
-        glTranslate(0,sz_square*0.71*2,0);
       }
+
     glPopMatrix();
 
-  }
+  
 
     glPopMatrix();
    };
@@ -806,6 +815,154 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                     return "That piece can't move there!";
                   else        
                     return "That would put your king in check!";
+                }
+
+                void Animate(int i, int j, int m, int n, vtkRenderWindow *ren)
+                {
+                  //assuming only thing moving atm is on y axis increasing
+                  //sqdist*i at first should be dist
+                  if (j == n)
+                  {
+                    //moving vertically
+                    int start = i;
+                    int end = m;
+                    if (end > start)
+                    {
+                      //moving up on the y axis
+                      double distance = sqDist*abs(end-start);
+                      double movedist = distance/frames;
+                      b->yoffset[m][n] = -distance;
+
+                      cerr<<"i "<<i<<" j "<<j<<" m "<<m<<" n "<<n<< "distance "<<distance;
+                      for (int k = 0; k < frames*(end-start); k++)
+                      {
+                        std::cerr<<"\nAnimate frame "<<k<<" offset "<<distance/frames;
+                        b->yoffset[m][n] += distance/(frames*(end-start));
+                        ren->Render();
+                      }
+                    }
+                    else if (end < start)
+                    {
+                      //moving down on the y axis
+                      double distance = sqDist*abs(start-end);
+                      double movedist = distance/frames;
+                      b->yoffset[m][n] = distance;
+                      for(int k = 0; k < frames*abs(start-end); k ++)
+                      {
+                        b->yoffset[m][n] -= distance/(frames*abs(start-end));
+                        ren->Render();
+                      }
+                    }
+                  }
+                  else if (i == m)
+                  {
+                    //moving horizontally
+                    int start = j;
+                    int end = n;
+                    if (end > start)
+                    {
+                      //moving right on the x axis
+                      double distance = sqDist*abs(end-start);
+                      double movedist = distance/frames;
+                      b->xoffset[m][n] = -distance;
+                      for (int k = 0; k < frames*abs(end-start); k++)
+                      {
+                        b->xoffset[m][n] += distance/(frames*abs(end-start));
+                        ren->Render();
+                      }
+                    }
+                    else if (end < start)
+                    {
+                      //moving left on the x axis
+                      double distance = sqDist *abs(start - end);
+                      double movedist = distance/frames;
+                      b->xoffset[m][n] = distance;
+                      for (int k = 0; k < frames*abs(start-end); k++)
+                      {
+                        b->xoffset[m][n] -= distance/(frames*abs(start-end));
+                        ren->Render();
+                      }
+                    }
+                  }
+                  else if ((i>m)&&(j>n))
+                  {
+                    //traveling down left
+                    int xstart = j;
+                    int ystart = i;
+                    int xend = n;
+                    int yend = m;
+                    double xdist = sqDist*abs(xend-xstart);
+                    double ydist = sqDist*abs(yend-ystart);
+                    int avg = (abs(xend-xstart)+abs(yend-ystart))/2;
+                    b->xoffset[m][n] = xdist;
+                    b->yoffset[m][n] = ydist;
+                    for (int k = 0; k < frames*avg; k++)
+                    {
+                      b->xoffset[m][n]-=xdist/(frames*avg);
+                      b->yoffset[m][n]-=ydist/(frames*avg);
+                    }
+                  }
+                  else if ((i>m)&&(j<n))
+                  {
+                    //traveling down right
+                    int xstart = j;
+                    int ystart = i;
+                    int xend = n;
+                    int yend = m;
+                    double xdist = sqDist*abs(xend-xstart);
+                    double ydist = sqDist*abs(yend-ystart);
+                    int avg = (abs(xend-xstart)+abs(yend-ystart))/2;
+                    b->xoffset[m][n] = -xdist;
+                    b->yoffset[m][n] = ydist;
+                    for(int k = 0; k < frames*avg; k++)
+                    {
+                      b->xoffset[m][n]+=xdist/(frames*avg);
+                      b->yoffset[m][n]-=ydist/(frames*avg);
+                      ren->Render();
+                    }
+                  }
+                  else if ((i<m)&&(j>n))
+                  {
+                    //traveling up left
+                    int xstart = j;
+                    int ystart = i;
+                    int xend = n;
+                    int yend = m;
+                    double xdist = sqDist*abs(xend-xstart);
+                    double ydist = sqDist*abs(yend-ystart);
+                    int avg = (abs(xend-xstart)+abs(yend-ystart))/2;
+                    b->xoffset[m][n]=xdist;
+                    b->yoffset[m][n]=-ydist;
+                    for(int k = 0; k < frames*avg; k++)
+                    {
+                      b->xoffset[m][n]-=xdist/(frames*avg);
+                      b->yoffset[m][n]+=ydist/(frames*avg);
+                      ren->Render();
+                    }
+
+                  }
+                  else if ((i<m)&&(j<n))
+                  {
+                    //traveling up right
+                    int xstart = j;
+                    int ystart = i;
+                    int xend = n;
+                    int yend = m;
+                    double xdist = sqDist*abs(xend-xstart);
+                    double ydist = sqDist*abs(yend-ystart);
+                    int avg = (abs(xend-xstart)+abs(yend-ystart))/2;                    
+                    b->xoffset[m][n]=-xdist;
+                    b->yoffset[m][n]=-ydist;
+                    for (int k = 0; k < frames*avg; k++)
+                    {
+                      b->xoffset[m][n]+= xdist/(frames*avg);
+                      b->yoffset[m][n]+= ydist/(frames*avg);
+                      ren->Render();
+                    }                    
+                  }
+
+                  b->yoffset[m][n] = 0;
+                  ren->Render();
                 }
 
                 void toMove(double *pos,int *move)
@@ -941,7 +1098,7 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                                     }
                                     else
                                     {
-                                      b->setMoveWaiting(gm->sq1[0],gm->sq1[1],gm->sq2[0],gm->sq2[1]);
+                                      Animate(gm->sq1[0],gm->sq1[1],gm->sq2[0],gm->sq2[1],rw);
                                       gm->changeTurn(); //have the player turns be in a length 2 array so you can just -1
                                       gm->isCheckmate();
                                       setText(getTurn());
@@ -964,7 +1121,7 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                                     shouldPick = false;
                                     showStalemate();
                                   }
-                                  rw->Render();
+                                 // rw->Render();
                                  // shouldPick = false;
                                 }
                         }

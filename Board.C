@@ -10,10 +10,13 @@ class Board
 {
 	public:
 		Piece* board[8][8];
+		double yoffset[8][8];
+		double xoffset[8][8];
 		int active[2];
 		int moveset[4];
 		bool mwaiting;
 		vector<int> Threats;
+		
 
 		// White Black Empty
 		//   0     1     2
@@ -22,12 +25,15 @@ class Board
 
 		Board(void)
 		{
+
 			mwaiting = false;
 			active[0] = 9;
 			active[1] = 9;
 			for (int i  = 0; i < 8; i++)
 				for (int j = 0; j < 8; j++)
 				{
+					yoffset[i][j]=0;
+					xoffset[i][j]=0;
 					if (i == 0)
 					{
 						if (j == 0 || j == 7)
