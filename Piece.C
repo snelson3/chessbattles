@@ -14,7 +14,7 @@ class Piece
 		char n[3];
 		const char *name;
 		bool moved;
-		bool isking;
+		bool iKing;
 	//	Piece b[8][8];
 
 		Piece(int p)
@@ -41,7 +41,7 @@ class Piece
 		bool isKing()
 		{
 			//std::cerr<<"Is this breaking?";
-			return isking;
+			return iKing;
 		}
 
 		const char *getPlayer(){if (player == 0) return "White"; if (player == 1) return "Black"; return "";}
@@ -98,6 +98,7 @@ class Pawn : public Piece
 		Pawn(int p) : Piece(p)
 		{
 			name = "Pa";
+			iKing = false;
 			setN();
 		}
 
@@ -198,6 +199,7 @@ class Rook : public Piece
 		Rook(int p) : Piece(p)
 		{
 			name = "Ro";
+			iKing = false;
 			setN();
 		}
 
@@ -373,6 +375,7 @@ class Knight : public Piece
 		Knight(int p) : Piece(p)
 		{
 			name = "Kn";
+			iKing = false;
 			setN();
 		}
 
@@ -451,6 +454,7 @@ class Bishop : public Piece
 		Bishop(int p) : Piece(p)
 		{
 			name = "Bi";
+			iKing = false;
 			setN();
 		}
 
@@ -637,6 +641,7 @@ class Queen : public Piece
 		Queen(int p) : Piece(p)
 		{
 			name = "Qu";
+			iKing = false;
 			setN();
 		}
 
@@ -953,7 +958,7 @@ class King : public Piece
 		{
 			name = "Ki";
 			setN();
-			isking = true;
+			iKing = true;
 		}
 
 		virtual int canMove(int i, int j, int m, int n, Piece *board[8][8])
@@ -1034,6 +1039,7 @@ class Empty : public Piece
 		{
 			name = "  ";
 			setN();
+			iKing = false;
 			moved = true; //to sidestep issues with trying to castle with empty spaces
 		}
 

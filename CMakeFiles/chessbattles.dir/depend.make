@@ -95,8 +95,10 @@ CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkAbstractMapper.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkAbstractMapper3D.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActor.h
+CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActor2D.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActorCollection.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkCamera.h
+CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkCoordinate.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkInteractorObserver.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkInteractorStyle.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkLight.h
@@ -114,6 +116,8 @@ CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkViewport.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkVolume.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkVolumeCollection.h
+CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkRenderingFreeTypeModule.h
+CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkTextActor.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkOpenGL.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkOpenGLPolyDataMapper.h
 CMakeFiles/chessbattles.dir/chessbattles.cxx.o: /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkRenderingOpenGLConfigure.h

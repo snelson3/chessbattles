@@ -678,6 +678,14 @@ vtkRenderingCoreModule.h
 vtkProp3D.h
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkProp3D.h
 
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActor2D.h
+vtkRenderingCoreModule.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkRenderingCoreModule.h
+vtkProp.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkProp.h
+vtkCoordinate.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkCoordinate.h
+
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActorCollection.h
 vtkRenderingCoreModule.h
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkRenderingCoreModule.h
@@ -687,6 +695,12 @@ vtkActor.h
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActor.h
 
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkCamera.h
+vtkRenderingCoreModule.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkRenderingCoreModule.h
+vtkObject.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkObject.h
+
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkCoordinate.h
 vtkRenderingCoreModule.h
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkRenderingCoreModule.h
 vtkObject.h
@@ -804,6 +818,20 @@ vtkPropCollection.h
 vtkVolume.h
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkVolume.h
 
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkRenderingFreeTypeModule.h
+vtkRenderingCoreModule.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkRenderingCoreModule.h
+vtkRenderingCoreModule.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkRenderingCoreModule.h
+vtkAutoInit.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkAutoInit.h
+
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkTextActor.h
+vtkRenderingFreeTypeModule.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkRenderingFreeTypeModule.h
+vtkActor2D.h
+/Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkActor2D.h
+
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkOpenGL.h
 vtkRenderingOpenGLModule.h
 /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkRenderingOpenGLModule.h
@@ -857,6 +885,8 @@ iostream
 -
 Gamemaster.C
 /Users/snelson/chessbattles/Gamemaster.C
+Piece.C
+/Users/snelson/chessbattles/Piece.C
 vtkInteractorStyle.h
 /Users/snelson/chessbattles/vtkInteractorStyle.h
 vtkInteractorStyleTrackballCamera.h
@@ -891,6 +921,8 @@ vtkJPEGReader.h
 /Users/snelson/chessbattles/vtkJPEGReader.h
 vtkImageData.h
 /Users/snelson/chessbattles/vtkImageData.h
+vtkTextActor.h
+-
 vtkPolyData.h
 -
 vtkPointData.h

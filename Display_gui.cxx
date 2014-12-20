@@ -896,10 +896,11 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                     int avg = (abs(xend-xstart)+abs(yend-ystart))/2;
                     b->xoffset[m][n] = xdist;
                     b->yoffset[m][n] = ydist;
-                    for (int k = 0; k < frames*avg; k++)
+                    for(int k = 0; k < frames*avg; k++)
                     {
                       b->xoffset[m][n]-=xdist/(frames*avg);
                       b->yoffset[m][n]-=ydist/(frames*avg);
+                      ren->Render();
                     }
                   }
                   else if ((i>m)&&(j<n))
@@ -965,21 +966,25 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                   ren->Render();
                 }
 
+  
                 void toMove(double *pos,int *move)
                 {
                   //so you round
-                  cerr<<"  so pos is " << pos[0] << pos[1]<<endl;
+                  cerr<<"  so pos is " << pos[0] << " "<<pos[1]<<endl;
+
+
                   move[0] = round(pos[1]);
                   move[1] = round(pos[0]);
-                  //you add 12 to get rid of the negatives
+                  //you add 11.2 to get rid of the negatives
                   move[0]+=12;
                   move[1]+=12;
-                  //you divide by 3 cause thats the size (cheater)
-                  move[0]= move[0]/3;
-                  move[1]=move[1]/3;
+                  //you divide by 2.8 cause thats the size (cheater)
+                  move[0]= move[0]/2.8;
+                  move[1]=move[1]/2.8;
                   //you ceiling to get the int
                   move[0] = ceil(move[0]);
                   move[1] = ceil(move[1]);
+
                 }
 
                 virtual void OnChar()
@@ -1073,7 +1078,7 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                                   sprintf(MSG,"Selected: %s at %d,%d",b->board[move[0]][move[1]]->getName(),move[0],move[1]);
                                   act->SetInput(MSG);
 
-                                  if (!gm->s1)
+                                  if ( (!gm->s1) && (b->board[move[0]][move[1]]->getPlayerNum() == gm->t) )
                                   {
                                     //gm->sq1 = move;
                                     gm->sq1[0] = move[0];
@@ -1108,9 +1113,9 @@ class vtk441InteractorStyle : public vtkInteractorStyleTrackballCamera
                                     b->setActive(9,9);
                                     b->clearThreats();
                                   }
+
                                   cerr<<"your move "<<gm->getPlayer()<<endl;
                                   
-
                                   if (gm->checkmate)
                                   {
                                     shouldPick = false;

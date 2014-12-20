@@ -178,6 +178,33 @@ class Board
 			}
 		};
 
+		vector<int> getAllMoves(int p)
+		{
+			vector<int> moves;
+
+			for (int i = 0; i < 8; i++)
+				for (int j = 0; j < 8; j++)
+				{
+					if (board[i][j]->getPlayerNum() == p)
+					{
+						//get the moves
+						vector<int> pmoves = board[i][j]->getThreats(i,j,this);
+						for(std::vector<int>::iterator mo = pmoves.begin(); mo != pmoves.end(); ++mo)
+							moves.push_back(board[i][j].loc1d(board[i][j]));
+					}
+				}
+			return moves;
+
+			//go through each spot on the board, and for every piece that belongs to that player, add all the moves to the v
+			//for each piece
+			  //if p
+			//vector<int> thing = piece.getMoves
+			//for each move
+			 //put it in a vector
+
+			//return the vector
+
+		}
 
 		bool isCheck(int t)
 		{
@@ -209,6 +236,7 @@ class Board
 							if (t == g && h == y)
 							{
 								//std::cerr<<"R TRUE";
+								std::cerr<<"\nKing at "<<g<<","<<h<<" is in check\n";
 								return true;
 							}
 						}

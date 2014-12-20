@@ -5,6 +5,7 @@
 #include "Board.C"
 #include <iostream>
 #include <errno.h>
+#include "AI.C"
 
 class Gamemaster
 {
@@ -19,6 +20,7 @@ class Gamemaster
 		bool s1;
 		int sq2[2];
 		bool s2;
+		AI ai;
 
 		Gamemaster(int di)
 		{

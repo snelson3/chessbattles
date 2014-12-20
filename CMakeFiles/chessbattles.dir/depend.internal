@@ -96,8 +96,10 @@ CMakeFiles/chessbattles.dir/chessbattles.cxx.o
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkAbstractMapper.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkAbstractMapper3D.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActor.h
+ /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActor2D.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkActorCollection.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkCamera.h
+ /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkCoordinate.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkInteractorObserver.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkInteractorStyle.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkLight.h
@@ -115,6 +117,8 @@ CMakeFiles/chessbattles.dir/chessbattles.cxx.o
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkViewport.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkVolume.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/Core/vtkVolumeCollection.h
+ /Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkRenderingFreeTypeModule.h
+ /Users/snelson/CIS441/VTK-6.1.0/Rendering/FreeType/vtkTextActor.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkOpenGL.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkOpenGLPolyDataMapper.h
  /Users/snelson/CIS441/VTK-6.1.0/Rendering/OpenGL/vtkRenderingOpenGLConfigure.h
